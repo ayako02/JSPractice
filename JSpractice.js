@@ -318,3 +318,74 @@ var mikasa = new People("Mikasa", 18);
 var eren = new People("Eren", 18);
 console.log(mikasa.describe());
 console.log(eren.describe());
+
+// Function Context
+var ppl = {
+  name: "John"
+};
+
+function printName() {
+  console.log(this.name);
+}
+
+var boundPrintName = printName.bind(ppl);
+boundPrintName();
+//printName.call(ppl);    //same func as boundPrintName, will display same reult
+
+var myDog = {
+  firstName: "Hero",
+  breed: "Boxer",
+  age: 3
+};
+function printFullName() {
+  console.log(this.firstName + " is a " + this.breed);
+}
+
+function printDetails() {
+  console.log(this.firstName + " is " + this.age + " years old.");
+}
+
+var boundPrintFullName = printFullName.bind(myDog);
+var boundPrintDetails = printDetails.bind(myDog);
+
+boundPrintFullName();
+boundPrintDetails();
+
+// inheritance
+
+var ThisPerson = function() {};
+ThisPerson.prototype.initialize = function(name, age) {
+  this.name = name;
+  this.age = age;
+};
+
+ThisPerson.prototype.describe = function(name, age) {
+  console.log(this.name + ", " + this.age + " years old");
+};
+
+var Student = function() {};
+Student.prototype = new ThisPerson();
+Student.prototype.learn = function(subject) {
+  console.log(this.name + " just learned " + subject);
+};
+
+var me = new Student();
+me.describe("Harry Potter", 20);
+me.initialize("Harry Potter", 20);
+me.learn("Magic");
+
+var AnotherPerson = function() {};
+AnotherPerson.prototype.initialize = function(name, age) {
+  this.name = name;
+  this.age = age;
+};
+
+var Lecturer = function() {};
+Lecturer.prototype = new AnotherPerson();
+Lecturer.prototype.teach = function(subject) {
+  console.log(this.name + " is now teaching " + subject);
+};
+
+var him = new Lecturer();
+him.initialize("Mr.Shahab", 40);
+him.teach("Networking");
