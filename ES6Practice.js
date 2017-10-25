@@ -148,3 +148,76 @@ var ninja = {
 };
 
 ninja.chop(3);
+
+function myFunc() {
+  this.myVar = 0;
+  var that = this;
+  // setTimeout(function() {
+  //   that.myVar++;
+  //   console.log(that.myVar);    //output: 1
+  //   console.log(this.myVar);    //output: undefined
+  // }, 0);
+  setTimeout(() => {
+    this.myVar++;
+    console.log(this.myVar);
+  }, 0);
+}
+
+myFunc();
+
+// Sets
+
+var names = new Set();
+
+names
+  .add("McDonald")
+  .add("Suki-ya")
+  .add("PizzaHut")
+  .add("Suki-ya");
+names.delete("Suki-ya");
+//names.clear();          // delete all elements in names
+
+console.log(names.size);
+// output: 3, because it has 3 different elements in the sets
+
+console.log(names.has("PizzaHut"));
+console.log(names.has("Suki-ya"));
+// to check whether the specific elements exist or not
+
+console.log(names);
+
+var food = ["burger", "fries", "pizza", "burger", "fries", "cakes"];
+
+var moreFoods = new Set(food);
+console.log(moreFoods);
+
+food = [...moreFoods];
+console.log(food);
+
+// Generators
+
+// next() func is like a play button
+// yield keyword is like a pause button
+function* dogs() {
+  var x = yield "Boxer";
+  var y = yield "Beagle";
+  var z = yield "Husky";
+  return x + y + z;
+}
+
+var moreDogs = dogs();
+console.log(moreDogs.next());
+console.log(moreDogs.next(10));
+console.log(moreDogs.next(20));
+console.log(moreDogs.next(30));
+
+// Constants
+const pi = 3.142;
+
+function calcArea(r) {
+  //pi = 10;          //will caught error
+  const pi = 10; //this will work
+  console.log("The area is: " + pi * r * r);
+}
+
+calcArea(5);
