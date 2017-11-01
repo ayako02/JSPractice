@@ -159,7 +159,7 @@ function myFunc() {
   // }, 0);
   setTimeout(() => {
     this.myVar++;
-    console.log(this.myVar);
+    console.log(this.myVar);      //output: 1
   }, 0);
 }
 
