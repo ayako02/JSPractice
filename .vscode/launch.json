@@ -8,7 +8,7 @@
       "type": "node",
       "request": "launch",
       "name": "Launch Program",
-      "program": "${workspaceFolder}/ES6Practice.js"
+      "program": "${workspaceFolder}/ES6Katas_Array.js"
     }
   ]
 }
