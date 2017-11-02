@@ -111,3 +111,130 @@ describe('destructuring objects', () => {
   });
 
 });
+
+
+// 13: destructuring - defaults
+// To do: make all tests pass, leave the assert lines unchanged!
+
+describe('destructuring can also have default values', () => {
+
+  it('for an empty array', () => {
+    const [a = 1] = [];
+    assert.equal(a, 1);
+  });
+
+  it('for a missing value', () => {
+    const [a, b=2] = [1,,3];
+    
+    
+    assert.equal(b, 2);
+  });
+
+  it('in an object', () => {
+    const {a, b=2} = {a: 1};
+    assert.equal(b, 2);
+  });
+
+  it('if the value is undefined', () => {
+    const {a, b=2} = {a: 1, b: void 0};
+    assert.strictEqual(b, 2);
+  });
+
+  it('also a string works with defaults', () => {
+    const [a, b=2] = '1';
+    assert.equal(a, '1');
+    assert.equal(b, 2);
+  });
+
+});
+
+
+// 14: destructuring - parameters
+// To do: make all tests pass, leave the assert lines unchanged!
+
+describe('destructuring function parameters', () => {
+
+  describe('destruct parameters', () => {
+    it('multiple params from object', () => {
+      const fn = ({id, name}) => {
+        assert.equal(id, 42);
+        assert.equal(name, 'Wolfram');
+      };
+      const user = {name: 'Wolfram', id: 42};
+      fn(user);
+    });
+    
+    it('multiple params from array/object', () => {
+      const fn = ([,{name}]) => {
+        assert.equal(name, 'Alice');
+      };
+      const users = [{name: 'nobody'}, {name: 'Alice', id: 42}];
+      fn(users);
+    });
+  });
+
+  describe('default values', () => {
+    it('for simple values', () => {
+      const fn = (id, name='Bob') => {
+        assert.strictEqual(id, 23);
+        assert.strictEqual(name, 'Bob');
+      };
+      fn(23);
+    });
+    
+    it('for a missing array value', () => {
+      const defaultUser = {id: 23, name: 'Joe'};
+      const fn = ([user,defaultUser]) => {
+        assert.deepEqual(user, defaultUser);
+      };
+      fn([]);
+    });
+    
+    it('mix of parameter types', () => {
+      const fn = (id=1, [arr=2], {obj=3}) => {
+        assert.equal(id, 1);
+        assert.equal(arr, 2);
+        assert.equal(obj, 3);
+      };
+      fn(void 0, [], {});
+    });
+  });
+
+});
+
+
+// 15: destructuring - assign
+// To do: make all tests pass, leave the assert lines unchanged!
+
+describe('assign object property values to new variables while destructuring', () => {
+
+  describe('for simple objects', function() {
+    it('use a colon after the property name, like so `propertyName: newName`', () => {
+      const {x: y} = {x: 1};
+      assert.equal(y, 1);
+    });
+    
+    it('assign a new name and give it a default value using `= <default value>`', () => {
+      const {x: y=42} = {y: 23};
+      assert.equal(y, 42);
+    });
+  });
+
+  describe('for function parameter names', function() {
+    it('do it the same way, with a colon behind it', () => {
+      const fn = ({x: y}) => {
+        assert.equal(y, 1);
+      };
+      fn({x: 1});
+    });
+    
+    it('giving it a default value is possible too, like above', () => {
+      const fn = ({x: y=3}) => {
+        assert.equal(y, 3);
+      };
+      fn({});
+    });
+  });
+  
+});
+
