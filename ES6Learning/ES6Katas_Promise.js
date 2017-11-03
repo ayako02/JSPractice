@@ -266,3 +266,239 @@ class NotRejectedError extends Error {
 }
 
 
+// 77: Promise - chaining 
+// To do: make all tests pass, leave the assert lines unchanged!
+
+describe('chaining multiple promises can enhance readability', () => {
+
+  describe('prerequisites for understanding', function() {
+    
+    it('reminder: the test passes when a fulfilled promise is returned', function() {
+      return Promise.resolve('I should fulfill.');
+    });
+  
+    it('a function given to `then()` fulfills (if it doesnt throw)', function() {
+      const beNice = () => 'I am nice';
+      return Promise.resolve()
+        .then(beNice)
+        .then(niceMessage => assert.equal(niceMessage, 'I am nice'));
+    });
+    
+  });
+
+  describe('chain promises', function() {
+    
+    const removeMultipleSpaces = string => string.replace(/\s+/g, ' ');
+    
+    it('`then()` receives the result of the promise it was called on', function() {
+      const wordsPromise = Promise.resolve('one   space     between each     word');
+      wordsPromise
+        .then(string => removeMultipleSpaces())
+        .then(actual => {assert.equal(actual, 'one space between each word')})
+      ;
+    });
+    
+    const appendPeriod = string => `${string}.`;
+    
+    it('multiple `then()`s can be chained', function() {
+      const wordsPromise = Promise.resolve('Sentence without       an end');
+      wordsPromise
+        .then(removeMultipleSpaces)
+        .then(actual => {assert.equal(actual, 'Sentence without an end.')})
+      ;
+    });
+    
+    const trim = string => string.replace(/^\s+/, '').replace(/\s+$/, '');
+    
+    it('order of the `then()`s matters', function() {
+      const wordsPromise = Promise.resolve('Sentence without       an end ');
+      wordsPromise
+        .then(appendPeriod)
+        .then(trim)
+        .then(removeMultipleSpaces)
+        .then(actual => {assert.equal(actual, 'Sentence without an end.')})
+      ;
+    });
+    
+    const asyncUpperCaseStart = (string, onDone) => {
+      const format = () => onDone(string[0].toUpperCase() + string.substr(1));
+      setTimeout(format, 100);
+    };
+  
+    it('any of the things given to `then()` can resolve asynchronously (the real power of Promises)', function() {
+      const wordsPromise = Promise.resolve('sentence without an end');
+      wordsPromise
+        .then(string => new Promise(resolve => asyncUpperCaseStart))
+        .then(string => new Promise(resolve => setTimeout(() => resolve(appendPeriod(string)), 100)))
+        .then(actual => {assert.equal(actual, 'Sentence without an end.')})
+      ;
+    });
+  
+    it('also asynchronously, the order still matters, promises wait, but don`t block', function() {
+      const wordsPromise = Promise.resolve('trailing space   ');
+      wordsPromise
+        .then(string => new Promise(resolve => asyncUpperCaseStart(string, resolve)))
+        .then(string => new Promise(resolve => setTimeout(() => resolve(appendPeriod(string)), 100)))
+        .then(string => new Promise(resolve => setTimeout(() => resolve(trim(string)), 100)))
+        .then(actual => {assert.equal(actual, 'Trailing space.')})
+      ;
+    });
+    
+  });
+
+});
+
+
+
+// 79: Promise - catch
+// To do: make all tests pass, leave the assert lines unchanged!
+// Here we use promises to trigger, don't modify the block with the 
+// returning promise!
+
+describe('`catch()` returns a Promise and deals with rejected cases only', () => {
+
+  describe('prerequisites for understanding', () => {
+
+    it('*return* a fulfilled promise, to pass a test', () => {
+      return Promise.resolve();
+      assert(false); // Don't touch! Make the test pass in the line above!
+    });
+
+    it('reminder: the test passes when a fulfilled promise is returned', () => {
+      return Promise.resolve('I should fulfill.');
+    });
+
+  });
+
+  describe('`catch` method basics', () => {
+    it('is an instance method', () => {
+      const p = Promise.resolve();
+      assert.equal(typeof p.catch, 'function');
+    });
+
+    it('catches only promise rejections', (done) => {
+      const promise = Promise.reject();
+      promise
+        .then(() => { done('Should not be called!'); })
+        .catch(done);
+    });
+
+    it('returns a new promise', () => {
+      const whatToReturn = () => Promise.resolve();
+      const promise = Promise.reject();
+      return promise.catch(() =>
+        whatToReturn()
+      );
+    });
+
+    it('converts it`s return value into a promise', () => {
+      const p = Promise.reject();
+      const p1 = p.catch(() => 'promise?');
+
+      return p1.then(result => assert.equal('promise?', result));
+    });
+
+    it('the first parameter is the rejection reason', () => {
+      const p = Promise.reject('oops');
+
+      return p.catch(reason => {
+        assert.equal(reason, 'oops');
+      });
+    });
+  });
+
+  describe('multiple `catch`es', () => {
+    it('only the first `catch` is called', () => {
+      const p = Promise.reject('1');
+      const p1 = p
+          .catch(reason => `${reason} AND 2`)
+          .catch(reason => `${reason} AND 3`)
+        ;
+
+      return p1.then(result =>
+        assert.equal(result, '1 AND 2')
+      );
+    });
+
+    it('if a `catch` throws, the next `catch` catches it', () => {
+      const p = Promise.reject('1');
+      const p1 = p
+          .catch(reason => { throw Error(`${reason} AND 2`) })
+          .catch(err => { throw Error(`${err.message} AND 3`) })
+          .catch(err => `${err.message}`)
+        ;
+
+      return p1.then(result =>
+        assert.equal(result, '1 AND 2 AND 3')
+      );
+    });
+  });
+
+});
+
+
+// 78: Promise - API overview
+// To do: make all tests pass, leave the assert lines unchanged!
+
+describe('`Promise` API overview', function() {
+
+  it('`new Promise()` requires a function as param', () => {
+    const param = () => {};
+    assert.doesNotThrow(() => { new Promise(param); });
+  });
+
+  describe('resolving a promise', () => {
+    // reminder: the test passes when a fulfilled promise is returned
+    it('via constructor parameter `new Promise((resolve) => { resolve(); })`', () => {
+      const param = (resolve) => { resolve(); };
+      return new Promise(param);
+    });
+    it('using `Promise.resolve()`', () => {
+      return Promise.resolve('all fine');
+    });
+  });
+
+  describe('a rejected promise', () => {
+    it('using the constructor parameter', (done) => {
+      const promise = new Promise((resolve, reject) => { reject(); });
+      promise
+        .then(() => done(new Error('The promise is expected to be rejected.')))
+        .catch(() => done());
+    });
+    it('via `Promise.reject()`', (done) => {
+      const promise = Promise.reject();
+      promise
+        .then(() => done(new Error('The promise is expected to be rejected.')))
+        .catch(() => done());
+    });
+  });
+
+  const resolvingPromise = Promise.resolve();
+  const rejectingPromise = Promise.reject();
+
+  describe('`Promise.all()`', () => {
+    it('`Promise.all([p1, p2])` resolves when all promises resolve', () =>
+      Promise.all([resolvingPromise, resolvingPromise])
+    );
+    it('`Promise.all([p1, p2])` rejects when a promise is rejected', (done) => {
+      Promise.all([resolvingPromise, rejectingPromise])
+        .then(() => done(new Error('The promise is expected to be rejected.')))
+        .catch(() => done())
+    });
+  });
+
+  describe('`Promise.race()`', () => {
+    it('`Promise.race([p1, p2])` resolves when one of the promises resolves', () =>
+      Promise.race([resolvingPromise, resolvingPromise])
+    );
+    it('`Promise.race([p1, p2])` rejects when one of the promises rejects', (done) => {
+      Promise.race([rejectingPromise, rejectingPromise])
+        .then(() => done(new Error('The promise is expected to be rejected.')))
+        .catch(() => done())
+    });
+    it('`Promise.race([p1, p2])` order matters (and timing)', () =>
+      Promise.race([resolvingPromise, rejectingPromise, ])
+    );
+  });
+
+});
